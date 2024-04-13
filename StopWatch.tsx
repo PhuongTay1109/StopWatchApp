@@ -54,7 +54,7 @@ function RoundButton({ title, color, background, onPress, disabled }) {
 }
 
 
-function Lap({ number, interval, fastest, slowest }) {
+function Lap({ index, interval, fastest, slowest }) {
     const lapTextStyle = [
         styles.lapText,
         fastest ? styles.fastest : null,
@@ -63,28 +63,31 @@ function Lap({ number, interval, fastest, slowest }) {
 
     return (
         <View style={styles.lap}>
-            <Text style={lapTextStyle}>Lap {number}</Text>
+            <Text style={lapTextStyle}>Lap {index}</Text>
             <Timer style={[lapTextStyle, styles.lapTimer]} interval={interval} />
         </View>
     );
 }
 
 function LapsList({ laps, timer }) {
-    const finishedLaps = laps.slice(1);
+    // Các laps đã hoàn thành trừ lap đầu tiên
+    const completedLaps = laps.slice(1);
     let min = Number.MAX_SAFE_INTEGER;
     let max = Number.MIN_SAFE_INTEGER;
 
-    if (finishedLaps.length >= 2) {
-        finishedLaps.forEach((lap) => {
-            if (lap < min) min = lap;
-            if (lap > max) max = lap;
+    if (completedLaps.length >= 2) {
+        completedLaps.forEach((lap) => {
+            if (lap < min) 
+                min = lap;
+            else if (lap > max) 
+                max = lap;
         });
     }
     return (
         <ScrollView style={styles.scrollView}>
             {laps.map((lap, index) => (
                 <Lap
-                    number={laps.length - index}
+                    index={laps.length - index}
                     key={laps.length - index}
                     interval={index === 0 ? timer + lap : lap}
                     fastest={lap === min}
