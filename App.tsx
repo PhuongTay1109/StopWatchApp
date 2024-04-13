@@ -1,23 +1,23 @@
 /* eslint-disable */
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
-    StyleSheet,
-    Text,
-    View,
-    TouchableHighlight
+  StyleSheet,
+  Text,
+  View,
+  TouchableHighlight
 } from 'react-native';
- 
+
 import formatTime from 'minutes-seconds-milliseconds';
 
-export default class StopWatch extends Component {
-  constructor(props) {
+export default class App extends Component {
+  constructor(props: any) {
     super(props);
     this.state = {
       timeElapsed: null,
       running: false,
       startTime: null,
-      laps: [] 
+      laps: []
     };
 
     this.handleStartPress = this.handleStartPress.bind(this);
@@ -26,13 +26,13 @@ export default class StopWatch extends Component {
   }
 
   laps() {
-    return this.state.laps.map(function(time, index) {
+    return this.state.laps.map(function (time: any, index: any) {
       return <View key={index} style={styles.lap}>
-        <Text style={styles.lapText}>
-            Lap #{index + 1}
+        <Text style={[styles.lapText, styles.whiteText]}>
+          Lap {index + 1}
         </Text>
-        <Text style={styles.lapText}>
-            {formatTime(time)}
+        <Text style={[styles.lapText, styles.whiteText]}>
+          {formatTime(time)}
         </Text>
       </View>
     });
@@ -40,18 +40,25 @@ export default class StopWatch extends Component {
 
   startStopButton() {
     var style = this.state.running ? styles.stopButton : styles.startButton;
-    return <TouchableHighlight underlayColor="gray"
-      onPress={this.handleStartPress} style={[styles.button, style]}>
-      <Text>
-        {this.state.running ? 'Stop' : 'Start'}
-      </Text>
-    </TouchableHighlight>;
+    var buttonText = this.state.running ? 'Stop' : 'Start';
+    var buttonTextColor = this.state.running ? 'red' : 'green'; // Màu chữ tương ứng
+    return (
+        <TouchableHighlight 
+            underlayColor="gray"
+            onPress={this.handleStartPress} 
+            style={[styles.button, style]}
+        >
+            <Text style={[styles.buttonText, {color: buttonTextColor}]}>
+                {buttonText}
+            </Text>
+        </TouchableHighlight>
+    );
   }
 
   lapButton() {
-    return <TouchableHighlight style={styles.button}
+    return <TouchableHighlight style={styles.lapButton}
       underlayColor="gray" onPress={this.handleLapPress}>
-      <Text>
+      <Text style={styles.whiteText}>
         Lap
       </Text>
     </TouchableHighlight>;
@@ -66,13 +73,13 @@ export default class StopWatch extends Component {
   }
 
   handleStartPress() {
-    if(this.state.running) {
+    if (this.state.running) {
       clearInterval(this.interval);
-      this.setState({running: false, interval: null});
+      this.setState({ running: false, interval: null });
       return;
     }
 
-    this.setState({startTime: new Date()});
+    this.setState({ startTime: new Date() });
 
     this.interval = setInterval(() => {
       this.setState({
@@ -83,29 +90,29 @@ export default class StopWatch extends Component {
   }
 
   render() {
-      return <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.timerWrapper}>
-            <Text style={styles.timer}>
-              {formatTime(this.state.timeElapsed)}
-            </Text>
-          </View>
-          <View style={styles.buttonWrapper}>
-            {this.lapButton()}
-            {this.startStopButton()}
-          </View>
+    return <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.timerWrapper}>
+          <Text style={[styles.timer, styles.whiteText]}>
+            {formatTime(this.state.timeElapsed)}
+          </Text>
         </View>
-        <View style={styles.footer}>
-          {this.laps()}
+        <View style={styles.buttonWrapper}>
+          {this.lapButton()}
+          {this.startStopButton()}
         </View>
-      </View>;
+      </View>
+      <View style={styles.footer}>
+        {this.laps()}
+      </View>
+    </View>;
   }
 }
 
-const styles = StyleSheet.create ({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    margin: 20
+    backgroundColor: 'black'
   },
   header: {
     flex: 1
@@ -127,7 +134,6 @@ const styles = StyleSheet.create ({
   lap: {
     justifyContent: 'space-around',
     flexDirection: 'row',
-    backgroundColor: 'lightgray',
     padding: 10,
     marginTop: 10
   },
@@ -138,6 +144,15 @@ const styles = StyleSheet.create ({
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  lapButton: {
+    borderWidth: 2,
+    height: 100,
+    width: 100,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: 'grey'
   },
   timer: {
     fontSize: 60
@@ -150,5 +165,9 @@ const styles = StyleSheet.create ({
   },
   stopButton: {
     borderColor: 'red'
+  }
+  ,
+  whiteText: {
+    color: 'white'
   }
 });
