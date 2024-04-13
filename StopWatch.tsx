@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import moment from 'moment';
 
+// Components
 function Timer({ interval, style }) {
     // padding 0 before number < 10
     const format = (n) => (n < 10 ? '0' + n : n);
@@ -23,35 +24,52 @@ function Timer({ interval, style }) {
 }
 
 function RoundButton({ title, color, background, onPress, disabled }) {
+    // when no timer lap button cant be pressed
+    const handlePress = () => {
+        if (!disabled) {
+            onPress();
+        }
+    };
+
+    const buttonStyle = {
+        backgroundColor: background,
+        opacity: disabled ? 1.0 : 0.7,
+    };
+
+    const buttonTitleStyle = {
+        color: color,
+    };
+
     return (
         <TouchableOpacity
-            onPress={() => !disabled && onPress()}
-            style={[styles.button, { backgroundColor: background }]}
-            activeOpacity={disabled ? 1.0 : 0.7}
+            onPress={handlePress}
+            style={[styles.button, buttonStyle]}
+            activeOpacity={1.0}
         >
             <View style={styles.buttonBorder}>
-                <Text style={[styles.buttonTitle, { color }]}>{title}</Text>
+                <Text style={[styles.buttonTitle, buttonTitleStyle]}>{title}</Text>
             </View>
         </TouchableOpacity>
     );
 }
 
+
 function Lap({ number, interval, fastest, slowest }) {
-    const lapStyle = [
+    const lapTextStyle = [
         styles.lapText,
-        fastest && styles.fastest,
-        slowest && styles.slowest,
+        fastest ? styles.fastest : null,
+        slowest ? styles.slowest : null,
     ];
 
     return (
         <View style={styles.lap}>
-            <Text style={lapStyle}>Lap {number}</Text>
-            <Timer style={[lapStyle, styles.lapTimer]} interval={interval} />
+            <Text style={lapTextStyle}>Lap {number}</Text>
+            <Timer style={[lapTextStyle, styles.lapTimer]} interval={interval} />
         </View>
     );
 }
 
-function LapsTable({ laps, timer }) {
+function LapsList({ laps, timer }) {
     const finishedLaps = laps.slice(1);
     let min = Number.MAX_SAFE_INTEGER;
     let max = Number.MIN_SAFE_INTEGER;
@@ -77,10 +95,6 @@ function LapsTable({ laps, timer }) {
     );
 }
 
-function ButtonsRow({ children }) {
-    return <View style={styles.buttonsRow}>{children}</View>;
-}
-
 export default class StopWatch extends Component {
     constructor(props) {
         super(props);
@@ -95,7 +109,7 @@ export default class StopWatch extends Component {
         clearInterval(this.timer);
     }
 
-    start = () => {
+    startHandle = () => {
         const now = new Date().getTime();
         this.setState({
             start: now,
@@ -107,7 +121,7 @@ export default class StopWatch extends Component {
         }, 100);
     };
 
-    lap = () => {
+    lapHandle = () => {
         const timestamp = new Date().getTime();
         const { laps, now, start } = this.state;
         const [firstLap, ...other] = laps;
@@ -118,7 +132,7 @@ export default class StopWatch extends Component {
         });
     };
 
-    stop = () => {
+    stopHandle = () => {
         clearInterval(this.timer);
         const { laps, now, start } = this.state;
         const [firstLap, ...other] = laps;
@@ -129,7 +143,7 @@ export default class StopWatch extends Component {
         });
     };
 
-    reset = () => {
+    resetHandle = () => {
         this.setState({
             laps: [],
             start: 0,
@@ -137,7 +151,7 @@ export default class StopWatch extends Component {
         });
     };
 
-    resume = () => {
+    resumeHandle = () => {
         const now = new Date().getTime();
         this.setState({
             start: now,
@@ -154,11 +168,12 @@ export default class StopWatch extends Component {
         return (
             <View style={styles.container}>
                 <Timer
+                    // sum of all laps that is finished
                     interval={laps.reduce((total, curr) => total + curr, 0) + timer}
                     style={styles.timer}
                 />
                 {laps.length === 0 && (
-                    <ButtonsRow>
+                    <View style={styles.buttonRow}>
                         <RoundButton
                             title='Lap'
                             color='#8B8B90'
@@ -169,43 +184,43 @@ export default class StopWatch extends Component {
                             title='Start'
                             color='#50D167'
                             background='#1B361F'
-                            onPress={this.start}
+                            onPress={this.startHandle}
                         />
-                    </ButtonsRow>
+                    </View>
                 )}
                 {start > 0 && (
-                    <ButtonsRow>
+                    <View style={styles.buttonRow}>
                         <RoundButton
                             title='Lap'
                             color='#FFFFFF'
                             background='#3D3D3D'
-                            onPress={this.lap}
+                            onPress={this.lapHandle}
                         />
                         <RoundButton
                             title='Stop'
                             color='#E33935'
                             background='#3C1715'
-                            onPress={this.stop}
+                            onPress={this.stopHandle}
                         />
-                    </ButtonsRow>
+                    </View>
                 )}
                 {laps.length > 0 && start === 0 && (
-                    <ButtonsRow>
+                    <View style={styles.buttonRow}>
                         <RoundButton
                             title='Reset'
                             color='#FFFFFF'
                             background='#3D3D3D'
-                            onPress={this.reset}
+                            onPress={this.resetHandle}
                         />
                         <RoundButton
                             title='Start'
                             color='#50D167'
                             background='#1B361F'
-                            onPress={this.resume}
+                            onPress={this.resumeHandle}
                         />
-                    </ButtonsRow>
+                    </View>
                 )}
-                <LapsTable laps={laps} timer={timer} />
+                <LapsList laps={laps} timer={timer} />
             </View>
         );
     }
@@ -214,13 +229,13 @@ export default class StopWatch extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0D0D0D',
+        backgroundColor: 'black',
         alignItems: 'center',
         paddingTop: 130,
-        paddingHorizontal: 20,
+        paddingHorizontal: 40,
     },
     timer: {
-        color: '#FFFFFF',
+        color: 'white',
         fontSize: 76,
         fontWeight: '200',
         width: 110,
@@ -243,7 +258,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    buttonsRow: {
+    buttonRow: {
         flexDirection: 'row',
         alignSelf: 'stretch',
         justifyContent: 'space-between',
@@ -251,7 +266,7 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     lapText: {
-        color: '#FFFFFF',
+        color: 'white',
         fontSize: 18,
     },
     lapTimer: {
@@ -262,7 +277,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         borderColor: '#151515',
         borderTopWidth: 1,
-        paddingVertical: 10,
+        paddingVertical: 20,
     },
     scrollView: {
         alignSelf: 'stretch',
